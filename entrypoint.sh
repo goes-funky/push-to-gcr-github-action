@@ -41,10 +41,24 @@ fi
 echo "docker build $BUILD_PARAMS $TARGET_ARG -t $TEMP_IMAGE_NAME $FILE_ARG $INPUT_CONTEXT"
 
 
-APP_VERSION="${DEPLOYMENT_NAME}:${GITHUB_SHA:0:8}"
+APP_VERSION="${INPUT_IMAGE_NAME}:${GITHUB_SHA:0:8}"
 
-BUILD_PARAMS="BUILD_PARAMS --build-arg APP_VERSION=${APP_VERSION}"
-BRANCH=$(git branch --show-current)
+BUILD_PARAMS="$BUILD_PARAMS --build-arg APP_VERSION=${APP_VERSION}"
+
+
+echo "checking git branch"
+git branch
+echo "/git branch"
+# for PR events
+BRANCH=$(echo ${GITHUB_REF#refs/heads/})
+
+if [ -z "$GITHUB_HEAD_REF"]; then
+  # on push events
+  echo "GITHUB_HEAD_REF: ${GITHUB_HEAD_REF}"
+  BRANCH=$(GITHUB_HEAD_REF)
+fi
+
+
 
 CLEAN_BRANCH_NAME=$(echo "$BRANCH" | sed 's/[^_a-zA-Z0-9-]//g')
 
@@ -52,6 +66,7 @@ echo "github ref: ${GITHUB_REF} ----"
 echo "github sha: ${GITHUB_SHA} ----"
 echo "branch: ${BRANCH} / ${CLEAN_BRANCH_NAME} ----"
 echo "app_version: ${APP_VERSION} ----"
+echo "build with: docker build $BUILD_PARAMS $TARGET_ARG -t $TEMP_IMAGE_NAME $FILE_ARG $INPUT_CONTEXT;"
 
 ALL_IMAGE_TAG=($APP_VERSION, ${GITHUB_SHA} ${GITHUB_SHA:0:8} "latest")
 
