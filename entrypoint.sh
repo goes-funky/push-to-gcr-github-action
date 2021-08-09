@@ -68,7 +68,7 @@ echo "branch: ${BRANCH} / ${CLEAN_BRANCH_NAME} ----"
 echo "app_version: ${APP_VERSION} ----"
 echo "build with: docker build $BUILD_PARAMS $TARGET_ARG -t $TEMP_IMAGE_NAME $FILE_ARG $INPUT_CONTEXT;"
 
-ALL_IMAGE_TAG=($APP_VERSION ${GITHUB_SHA} ${GITHUB_SHA:0:8} "latest")
+ALL_IMAGE_TAG=(${GITHUB_SHA} ${GITHUB_SHA:0:8} "latest")
 
 echo "::set-output name=branch::${BRANCH}"
 echo "::set-output name=short_sha::${GITHUB_SHA:0:8}"
