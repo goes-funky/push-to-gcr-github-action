@@ -56,6 +56,10 @@ fi
 echo "docker build $BUILD_PARAMS $TARGET_ARG -t $TEMP_IMAGE_NAME $FILE_ARG $INPUT_CONTEXT"
 
 
+echo "github ref: ${GITHUB_REF} ----"
+echo "github sha: ${GITHUB_SHA} ----"
+echo "::set-output-name name=short_sha::${GITHUB_SHA:0:6}"
+
 if docker build $BUILD_PARAMS $TARGET_ARG -t $TEMP_IMAGE_NAME $FILE_ARG $INPUT_CONTEXT; then
     echo "Image built ..."
 else

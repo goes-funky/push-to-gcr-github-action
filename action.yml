@@ -39,6 +39,9 @@ inputs:
   build_args:
     description: "Pass a list of env vars as build-args for docker-build, separated by commas"
     required: false
+outputs:
+  short_sha:
+    description: "short version of the commit sha"
 runs:
   using: docker
   image: Dockerfile
