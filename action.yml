@@ -20,10 +20,6 @@ inputs:
     description: The image name
     required: true
     default: backend-server
-  image_tag:
-    description: Tag name
-    required: false
-    default: latest
   dockerfile:
     description: Dockerfile that will build the image
     required: false
@@ -42,6 +38,10 @@ inputs:
 outputs:
   short_sha:
     description: "short version of the commit sha"
+  branch:
+    description: "the branch it was built in"
+  app_version:
+    description: "used app version"
 runs:
   using: docker
   image: Dockerfile

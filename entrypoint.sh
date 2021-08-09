@@ -10,18 +10,6 @@
 #bash_version   :5.0.17(1)-release
 ###################################################
 
-function split_csv() {
-    IFS=','
-    csv_data=$1
-    local -n global_list_array=$2
-    for i in $csv_data; do
-        global_list_array+=($i)
-    done
-    unset IFS
-}
-
-ALL_IMAGE_TAG=()
-
 echo "Authenticating docker to gcloud ..."
 if ! echo $INPUT_GCLOUD_SERVICE_KEY | python -m base64 -d >/tmp/key.json 2>/dev/null; then
     echo "Failed to decode gcloud_service_key -- did you forget to encode it using 'python -m base64 -e < yourkey.json'?"
@@ -34,9 +22,6 @@ else
     echo "Docker login failed. Exiting ..."
     exit 1
 fi
-
-split_csv $INPUT_IMAGE_TAG ALL_IMAGE_TAG
-
 
 TEMP_IMAGE_NAME="$INPUT_IMAGE_NAME:temporary"
 
@@ -56,9 +41,23 @@ fi
 echo "docker build $BUILD_PARAMS $TARGET_ARG -t $TEMP_IMAGE_NAME $FILE_ARG $INPUT_CONTEXT"
 
 
+APP_VERSION="${DEPLOYMENT_NAME}:${GITHUB_SHA:0:8}"
+
+BUILD_PARAMS="BUILD_PARAMS --build-arg APP_VERSION=${APP_VERSION}"
+BRANCH=$(git branch --show-current)
+
+CLEAN_BRANCH_NAME=$(echo "$BRANCH" | sed 's/[^_a-zA-Z0-9-]//g')
+
 echo "github ref: ${GITHUB_REF} ----"
 echo "github sha: ${GITHUB_SHA} ----"
-echo "::set-output name=short_sha::${GITHUB_SHA:0:6}"
+echo "branch: ${BRANCH} / ${CLEAN_BRANCH_NAME} ----"
+echo "app_version: ${APP_VERSION} ----"
+
+ALL_IMAGE_TAG=($APP_VERSION, ${GITHUB_SHA} ${GITHUB_SHA:0:8} "latest")
+
+echo "::set-output name=branch::${BRANCH}"
+echo "::set-output name=short_sha::${GITHUB_SHA:0:8}"
+echo "::set-output name=app_version::${APP_VERSION}"
 
 if docker build $BUILD_PARAMS $TARGET_ARG -t $TEMP_IMAGE_NAME $FILE_ARG $INPUT_CONTEXT; then
     echo "Image built ..."
