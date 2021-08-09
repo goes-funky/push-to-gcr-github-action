@@ -52,7 +52,7 @@ echo "/git branch"
 # for PR events
 BRANCH=$(echo ${GITHUB_REF#refs/heads/})
 
-if [ -z "$GITHUB_HEAD_REF"]; then
+if [ ! -z "$GITHUB_HEAD_REF" ]; then
   # on push events
   echo "GITHUB_HEAD_REF: ${GITHUB_HEAD_REF}"
   BRANCH=$(GITHUB_HEAD_REF)
